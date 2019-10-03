@@ -66,7 +66,7 @@ public class mainTerminalNio {
 					System.out.println(comandos.rutaInterfaz());
 				}
 			}
-			
+			 
 			//Comando mkdir
 			if (separacion [0].equals("mkdir")) {
 				comandos.mkdir(separacion[1].toString());

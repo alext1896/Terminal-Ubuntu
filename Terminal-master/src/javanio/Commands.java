@@ -141,7 +141,7 @@ public class Commands {
 	public void info (String nombreArchivo) throws IOException {
 		Path rutaArchivo = Paths.get(rutaInicial.normalize() + "/" + nombreArchivo);
 		
-		if (rutaArchivo.toFile().exists()) {
+		if (rutaArchivo.toFile().exists())  {
 			if (rutaArchivo.toFile().isDirectory() || rutaArchivo.toFile().isFile()) {
 				FileChannel canal = FileChannel.open(rutaArchivo);
 				long tamañoArchivo = canal.size();
