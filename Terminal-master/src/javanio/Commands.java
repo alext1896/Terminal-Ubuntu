@@ -23,13 +23,12 @@ public class Commands {
 	}
 	
 	/*
-	 * @param nombreCarpeta
+	 * @param ruta
 	 * 
 	 * Este método recibe un String con el nombre de la carpeta que se quiere acceder.
 	 * A continuación crea una ruta a partir de la ruta home más el nombre de la carpeta, creando la Path de la
-	 * carpeta a la que se quiere acceder.
+	 * carpeta a la que se quiere acceder y cambiando la variable rutaInicial.
 	 * 
-	 * @return Devuelve la ruta de tipo Path de la carpeta que se quiere acceder. 
 	 */
 	public void setRutaInicial (String ruta) {
 		if (ruta.startsWith("/")) {
@@ -65,7 +64,8 @@ public class Commands {
 	}
 	
 	public void help () throws IOException {
-		Path ruta = Paths.get("/home/alejandro/eclipse-workspace/Terminal-master/src/javanio/help");
+		Commands comandos = new Commands ();
+		Path ruta = Paths.get("/home/alejandro/git/repository/Terminal-master/src/javanio/help");
 		Charset charset = Charset.forName("ISO-8859-1");
 		BufferedReader br = null;
 		try {
@@ -78,7 +78,9 @@ public class Commands {
 			
 			br.close();
 			} catch (IOException x) {
-				System.err.format("IOException: %s%n", x);
+				System.out.println("Escriba bien el comando.");
+				System.out.println(comandos.rutaInterfaz());
+				//System.err.format("IOException: %s%n", x);
 		}
 	}
 	
@@ -100,17 +102,26 @@ public class Commands {
 		Path rutaArchivo = Paths.get(rutaInicial + "/" + nombreArchivo);
 		String [] listar = rutaArchivo.toFile().list();
 		
-		for (int i = 0; i < listar.length; i++) {
-			System.out.println(listar [i]);
+		if (rutaArchivo.toFile().exists()) {
+			for (int i = 0; i < listar.length; i++) {
+				System.out.println(listar [i]);
+			}
+		}else {
+			System.out.println("El archivo que quiere listar no existe");
 		}
+		
 	}
 	
 	public void dirAbsolute (String rutaAbsoluta) {
 		Path rutaArchivo = Paths.get(rutaAbsoluta);
 		String [] listar = rutaArchivo.toFile().list();
 		
-		for (int i = 0; i < listar.length; i++) {
-			System.out.println(listar [i]);
+		if (rutaArchivo.toFile().exists()) {
+			for (int i = 0; i < listar.length; i++) {
+				System.out.println(listar [i]);
+			}
+		}else {
+			System.out.println("El archivo que quiere listar no existe");
 		}
 	}
 	
@@ -128,16 +139,18 @@ public class Commands {
 	}
 	
 	public void info (String nombreArchivo) throws IOException {
-		Path rutaArchivo = Paths.get(rutaInicial.toAbsolutePath() + "/" + nombreArchivo);
-		FileChannel canal = FileChannel.open(rutaArchivo);
-		long tamañoArchivo = canal.size();
+		Path rutaArchivo = Paths.get(rutaInicial.normalize() + "/" + nombreArchivo);
 		
-		if (rutaArchivo.toFile().isDirectory() || rutaArchivo.toFile().isFile()) {
-			System.out.println("Nombre del archivo: " + nombreArchivo);
-			System.out.println("Nombre del archivo padre: " + rutaInicial.toAbsolutePath().getName(rutaInicial.getNameCount()-1));
-			System.out.println("Tamaño del archivo: " + tamañoArchivo + "Bytes");
+		if (rutaArchivo.toFile().exists()) {
+			if (rutaArchivo.toFile().isDirectory() || rutaArchivo.toFile().isFile()) {
+				FileChannel canal = FileChannel.open(rutaArchivo);
+				long tamañoArchivo = canal.size();
+				System.out.println("Nombre del archivo: " + nombreArchivo);
+				System.out.println("Nombre del archivo padre: " + rutaInicial.toAbsolutePath().getName(rutaInicial.getNameCount()-1));
+				System.out.println("Tamaño del archivo: " + tamañoArchivo + "Bytes");
 		}else {
 			System.out.println("El archivo no existe");
+			}
 		}
 	}
 	

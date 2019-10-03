@@ -11,20 +11,19 @@ public class mainTerminalNio {
 				
 		System.out.println(comandos.rutaInterfaz());
 		operacion = sc.nextLine();
-
+		
+		
 		do {
-			
 			String [] separacion = operacion.split(" ");
-			
 			//Comando help
 			if (separacion[0].equals("help")) {
 				try {
 					comandos.help();
 				} catch (IOException e) {
-					e.printStackTrace();
+					System.out.println("Escriba bien el comando.");
+					
 				}
-			}
-			
+			}			
 			//Comando cd
 			try {
 					if (separacion[0].equals("cd")) {
@@ -98,7 +97,6 @@ public class mainTerminalNio {
 					comandos.mkfile(separacion[1]);
 					System.out.println(comandos.rutaInterfaz());
 				} catch (IOException e) {
-					// TODO Auto-generated catch block
 					e.printStackTrace();
 				}
 			}
@@ -119,21 +117,29 @@ public class mainTerminalNio {
 			
 			//Comando cp
 			if (separacion [0].equals("cp")) {
-				if (comandos.existe(separacion [2])) {
-					System.out.println("El archivo o fichero que quiere copiar ya existe, ¿Desea sobreescribirlo?");
-					System.out.println("Introduzca Si o No");
-					String confirmacion = sc.nextLine();
-					
-					while (confirmacion.equalsIgnoreCase("si") || confirmacion.equalsIgnoreCase("no")) {
-						if (confirmacion.equalsIgnoreCase("si")) {
-							comandos.cpLocal(separacion [1], separacion [2]);
-						}else {
-							System.out.println("Operacion Cancelada");
+				int tam = separacion.length;
+				if (tam > 2) {
+					if (comandos.existe(separacion [2])) {
+						System.out.println("El archivo o fichero que quiere copiar ya existe, ¿Desea sobreescribirlo?");
+						System.out.println("Introduzca Si o No");
+						String confirmacion = sc.nextLine();
+						
+						while (confirmacion.equalsIgnoreCase("si") || confirmacion.equalsIgnoreCase("no")) {
+							if (confirmacion.equalsIgnoreCase("si")) {
+								comandos.cpLocal(separacion [1], separacion [2]);
+							}else {
+								System.out.println("Operacion Cancelada");
+							}
 						}
+					}else {
+						System.out.println("El fichero no existe");
+						System.out.println(comandos.rutaInterfaz());
 					}
 				}
+			}else {
+				System.out.println("Comando no encontrado.");
+				System.out.println(comandos.rutaInterfaz());
 			}
-			
 			operacion = sc.nextLine();
 		}while (operacion.equalsIgnoreCase("exit") == false);
 		
