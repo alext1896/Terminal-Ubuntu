@@ -8,6 +8,7 @@ import java.nio.file.*;
 
 public class Commands {
 	
+	private static final CopyOption REPLACE_EXISTING = null;
 	private Path rutaInicial = null;
 	
 	public Commands () {
@@ -21,17 +22,46 @@ public class Commands {
 		
 	}
 	
+	/*
+	 * @param nombreCarpeta
+	 * 
+	 * Este método recibe un String con el nombre de la carpeta que se quiere acceder.
+	 * A continuación crea una ruta a partir de la ruta home más el nombre de la carpeta, creando la Path de la
+	 * carpeta a la que se quiere acceder.
+	 * 
+	 * @return Devuelve la ruta de tipo Path de la carpeta que se quiere acceder. 
+	 */
 	public void setRutaInicial (String ruta) {
 		if (ruta.startsWith("/")) {
 		Path nuevaPath = Paths.get(ruta);
-		this.rutaInicial = nuevaPath;
 		
+			if (nuevaPath.toFile().exists()) {
+				this.rutaInicial = nuevaPath;
+			}else {
+				System.out.println("cd: " + ruta + " No existe el archivo o el directorio");
+			}
+			
+		}else if (ruta.startsWith("..")) {
+			Path ultimaCarpeta = rutaInicial.normalize().getName(rutaInicial.getNameCount()-1);
+			String [] newPath = rutaInicial.toString().split("/" + ultimaCarpeta.toString());
+			Path nuevaPath = Paths.get(newPath[0]);
+			
+			if (nuevaPath.toFile().exists()) {
+				this.rutaInicial = nuevaPath;
+			}else {
+				System.out.println("cd: " + ruta + " No existe el archivo o el directorio");
+			}
+			
 		}else {
 			String nueva = rutaInicial.normalize() + "/"+ ruta;
 			Path nuevaPath = Paths.get(nueva);
-			this.rutaInicial = nuevaPath; 
+			
+			if (nuevaPath.toFile().exists()) {
+				this.rutaInicial = nuevaPath;
+			}else {
+				System.out.println("cd: " + ruta + " No existe el archivo o el directorio");
+			}
 		}
-
 	}
 	
 	public void help () throws IOException {
@@ -52,48 +82,6 @@ public class Commands {
 		}
 	}
 	
-	/*
-	 * @param nombreCarpeta
-	 * 
-	 * Este método recibe un String con el nombre de la carpeta que se quiere acceder.
-	 * A continuación crea una ruta a partir de la ruta home más el nombre de la carpeta, creando la Path de la
-	 * carpeta a la que se quiere acceder.
-	 * 
-	 * @return Devuelve la ruta de tipo Path de la carpeta que se quiere acceder. 
-	 */
-	public Path cd (String nombreCarpeta) {
-		Commands ruta = new Commands ();
-		String [] separacion = ruta.rutaInterfaz().split(":");
-		String newPath = separacion [0] + "~/" + nombreCarpeta + "$";
-		Path nuevaRuta = Paths.get(newPath);
-		
-		return nuevaRuta;
-	}
-	
-	public Path cdAbsouluta (String rutaAbsoluta) {
-		Commands ruta = new Commands ();
-		String [] separacion = ruta.rutaInterfaz().split(":");
-		String [] separacionRuta = rutaAbsoluta.split("alejandro");
-		
-		String newPath = separacion [0] + ":alejandro" + separacionRuta [1]+ "~$";
-		Path nuevaRuta = Paths.get(newPath);
-		return nuevaRuta;
-	}
-	
-	
-	/**
-	 * 
-	 * @return
-	 */
-	public Path cdPadre () {
-		Commands ruta = new Commands ();
-		
-		String [] pantalla = ruta.rutaInterfaz().split(":");
-		String newPath = pantalla [0] + "~/"  + "$";
-		Path nuevaRuta = Paths.get(newPath);
-		return nuevaRuta;
-	}
-	
 	/**
 	 * @param ruta
 	 * Recibe un parámetro de tipo Path el cual lista los directorios y ficheros de la ruta en un array 
@@ -108,6 +96,24 @@ public class Commands {
 			System.out.println(listar[i]);
 		}
 	}
+	public void dirArchivo (String nombreArchivo) {
+		Path rutaArchivo = Paths.get(rutaInicial + "/" + nombreArchivo);
+		String [] listar = rutaArchivo.toFile().list();
+		
+		for (int i = 0; i < listar.length; i++) {
+			System.out.println(listar [i]);
+		}
+	}
+	
+	public void dirAbsolute (String rutaAbsoluta) {
+		Path rutaArchivo = Paths.get(rutaAbsoluta);
+		String [] listar = rutaArchivo.toFile().list();
+		
+		for (int i = 0; i < listar.length; i++) {
+			System.out.println(listar [i]);
+		}
+	}
+	
 	
 	public void mkdir (String nombreArchivo) {
 		Path rutaArchivo = Paths.get(rutaInicial.toAbsolutePath() + "/"+nombreArchivo);
@@ -199,19 +205,78 @@ public class Commands {
 		}
 	}
 	
+	public void mkfile (String nombreFichero) throws IOException {
+		Path rutaFichero = Paths.get(rutaInicial.normalize() + "/" + nombreFichero);
+		
+		if (rutaFichero.toFile().exists()) {
+			System.out.println("El fichero ya existe");
+		}else {
+			rutaFichero.toFile().createNewFile();
+		}
+		
+	}
+	
 	public void write (String nombreFichero, String [] texto) {
 		Path rutaFichero = Paths.get(rutaInicial.normalize() + "/" + nombreFichero);
 		Charset charset = Charset.forName("ISO-8859-1");
-		try (BufferedWriter wr = Files.newBufferedWriter(rutaFichero, charset)) {
+		try (BufferedWriter wr = Files.newBufferedWriter(rutaFichero, charset, StandardOpenOption.APPEND)) {
 			
-			for (int i = 2; i < texto.length; i++) {
+				for (int i = 2; i < texto.length; i++) {
 				wr.write(texto[i] + " ");
 			}
 		} catch (IOException e) {
 			// TODO Auto-generated catch block
 			System.out.println("El archivo no exite");
+			System.out.println(rutaFichero.toString());
 		}
 	}
+	
+	public void delete (String nombreFichero) {
+		Path rutaFichero = Paths.get(rutaInicial.normalize() + "/" + nombreFichero);
+		if (rutaFichero.toFile().exists()) {
+			rutaFichero.toFile().delete();
+		}else {
+			System.out.println("El archivo no existe.");
+		}
+	}
+	
+	public boolean existe (String nombreArchivo) {
+		Path rutaArchivo = Paths.get(rutaInicial.normalize() + "/"+nombreArchivo);
+		return rutaArchivo.toFile().exists();
+	}
+	
+	public void cpLocal (String ficheroOriginal, String ficheroNombre) {
+		Path rutaOriginal = Paths.get(rutaInicial.normalize() + "/" + ficheroOriginal);
+		Path archivoCopiado = Paths.get(rutaInicial.normalize() + "/" + ficheroNombre);
+		
+		try {
+			Files.copy(rutaOriginal, archivoCopiado, REPLACE_EXISTING);
+		}catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
+	public void cpAbsolute (String originalAbsoluta, String copiaAbsoluta) {
+		Path rutaOriginal = Paths.get(originalAbsoluta);
+		Path rutaCopia = Paths.get(copiaAbsoluta);
+		
+		if (originalAbsoluta.startsWith("/")) {
+			try {
+				Files.copy(rutaOriginal, rutaCopia);
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+		}
+		try {
+			Files.copy(rutaOriginal, rutaCopia);
+		} catch (IOException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+	}
+	
 }
 
 

@@ -28,32 +28,44 @@ public class mainTerminalNio {
 			//Comando cd
 			try {
 					if (separacion[0].equals("cd")) {
-						
-	
-					if (separacion [1].startsWith("/")){
-						System.out.println(comandos.cdAbsouluta(separacion [1].toString()));
-						comandos.setRutaInicial(separacion[1]);;
-						
-					}else if (separacion [1].startsWith("..")) {
-						System.out.println(comandos.cdPadre().toString());
-						comandos.setRutaInicial(separacion[1]);
-						
-					}else {
-						System.out.println(comandos.cd(separacion[1].toString()));
-						comandos.setRutaInicial(separacion[1]);
-					}
+						if (separacion [1].startsWith("/")){
+							//System.out.println(comandos.cdAbsouluta(separacion [1].toString()));
+							comandos.setRutaInicial(separacion[1]);;
+							System.out.println(comandos.rutaInterfaz());
+						}else if (separacion [1].startsWith("..")) {
+							//System.out.println(comandos.cdPadre().toString());
+							comandos.setRutaInicial(separacion[1]);
+							System.out.println(comandos.rutaInterfaz());
+							
+						}else {
+							//System.out.println(comandos.cd(separacion[1].toString()));
+							comandos.setRutaInicial(separacion[1]);
+							System.out.println(comandos.rutaInterfaz());
+						}
 				}	
 			}catch (ArrayIndexOutOfBoundsException e) {
 				comandos.setRutaInicial(separacion[1]);
-				System.out.println(comandos.cdPadre().toString());
+				System.out.println(comandos.rutaInterfaz());
 				
 			}
 			
 			
 			//Comando dir
 			if (separacion[0].equals("dir")) {
-				comandos.dir();
-				System.out.println(comandos.rutaInterfaz());
+				int tamaño = separacion.length;
+				
+				if (tamaño > 1) {
+					if (separacion [1].startsWith("/")) {
+						comandos.dirAbsolute(separacion [1]);
+						System.out.println(comandos.rutaInterfaz());
+					}else {
+						comandos.dirArchivo(separacion [1]);
+						System.out.println(comandos.rutaInterfaz());
+					}
+				}else {
+					comandos.dir();
+					System.out.println(comandos.rutaInterfaz());
+				}
 			}
 			
 			//Comando mkdir
@@ -80,6 +92,18 @@ public class mainTerminalNio {
 				System.out.println(comandos.rutaInterfaz());
 			}
 			
+			//Comando mkfile
+			if (separacion [0].equals("mkfile")) {
+				try {
+					comandos.mkfile(separacion[1]);
+					System.out.println(comandos.rutaInterfaz());
+				} catch (IOException e) {
+					// TODO Auto-generated catch block
+					e.printStackTrace();
+				}
+			}
+			
+			
 			//Comando write
 			if (separacion [0].equals("write")){
 				comandos.write(separacion [1], separacion);
@@ -87,6 +111,28 @@ public class mainTerminalNio {
 				
 			}
 			
+			//Comando delete
+			if (separacion[0].equals("delete")) {
+				comandos.delete(separacion [1]);
+				System.out.println(comandos.rutaInterfaz());
+			}
+			
+			//Comando cp
+			if (separacion [0].equals("cp")) {
+				if (comandos.existe(separacion [2])) {
+					System.out.println("El archivo o fichero que quiere copiar ya existe, ¿Desea sobreescribirlo?");
+					System.out.println("Introduzca Si o No");
+					String confirmacion = sc.nextLine();
+					
+					while (confirmacion.equalsIgnoreCase("si") || confirmacion.equalsIgnoreCase("no")) {
+						if (confirmacion.equalsIgnoreCase("si")) {
+							comandos.cpLocal(separacion [1], separacion [2]);
+						}else {
+							System.out.println("Operacion Cancelada");
+						}
+					}
+				}
+			}
 			
 			operacion = sc.nextLine();
 		}while (operacion.equalsIgnoreCase("exit") == false);
